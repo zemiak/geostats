@@ -26,7 +26,7 @@ import java.util.concurrent.Callable;
 
 @Command(name = "parse", mixinStandardHelpOptions = true, version = "parse 0.1",
         description = "Parses GPX of my-finds from Project-GC")
-public class parse implements Callable<Integer> {
+public class todoist implements Callable<Integer> {
     String cacher = "zemiak";
     CachingYear data = new CachingYear();
 
@@ -52,7 +52,7 @@ public class parse implements Callable<Integer> {
     String daysText;
 
     public static void main(String... args) {
-        int exitCode = new CommandLine(new parse()).execute(args);
+        int exitCode = new CommandLine(new todoist()).execute(args);
         System.exit(exitCode);
     }
 
@@ -109,8 +109,9 @@ public class parse implements Callable<Integer> {
         if (daysText.contains(date.getDayOfMonth() + ",") && monthsTextPlusComma.contains("," + date.getMonthValue() + ",")) {
             String size = cache.getElementsByTagName("groundspeak:container").item(0).getTextContent();
             String type = cache.getElementsByTagName("groundspeak:type").item(0).getTextContent();
+            String name = cache.getElementsByTagName("groundspeak:name").item(0).getTextContent();
 
-            System.out.println(date.toString() + ": " + size + "; " + type);
+            System.out.println(date.toString() + ": " + size + "; " + type + "; " + name);
         }
     }
 
@@ -223,14 +224,18 @@ public class parse implements Callable<Integer> {
                 finder = log.getElementsByTagName("groundspeak:finder").item(0).getTextContent().toLowerCase();
                 logType = log.getElementsByTagName("groundspeak:type").item(0).getTextContent().toLowerCase();
 
-                if (finder.equalsIgnoreCase(cacher) && logType.equals("found it")) {
+                if (finder.equalsIgnoreCase(cacher) && foundIt(logType)) {
                     dateText = log.getElementsByTagName("groundspeak:date").item(0).getTextContent().replace("Z", "");
                     return LocalDateTime.parse(dateText);
                 }
             }
         }
 
-        throw new IllegalStateException("Cannot find my log in cache");
+        throw new IllegalStateException("Cannot find my log in cache " + cache.getElementsByTagName("groundspeak:name").item(0).getTextContent());
+    }
+
+    boolean foundIt(String logType) {
+        return "found it".equals(logType) || "webcam photo taken".equals(logType) || "attended".equals(logType);
     }
 }
 
