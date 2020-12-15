@@ -21,6 +21,7 @@ import org.xml.sax.SAXException;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Parameters;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.concurrent.Callable;
 
@@ -51,6 +52,8 @@ public class todoist implements Callable<Integer> {
     @CommandLine.Option(names = { "-d", "--days"}, description = "Day numbers list (1-12). You can specify multiple: 1,2,4. Default: all", defaultValue = "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31")
     String daysText;
 
+    boolean isProjectGC;
+
     public static void main(String... args) {
         int exitCode = new CommandLine(new todoist()).execute(args);
         System.exit(exitCode);
@@ -71,6 +74,8 @@ public class todoist implements Callable<Integer> {
         Document doc = builder.parse(xmlFile);
 
         doc.getDocumentElement().normalize();
+
+        isProjectGC = isProjectGC(doc);
 
         NodeList nodeList = doc.getElementsByTagName("wpt");
 
@@ -103,6 +108,21 @@ public class todoist implements Callable<Integer> {
             dumpMonth(m);
         }
     };
+
+    private boolean isProjectGC(Document doc) {
+        NodeList nodeList = doc.getElementsByTagName("gpx");
+        if (nodeList.getLength() != 1) {
+            throw new IllegalStateException("Cannot find the root element");
+        }
+
+        if (nodeList.item(0).getNodeType() != Node.ELEMENT_NODE) {
+            throw new IllegalStateException("Root node is not an element");
+        }
+
+        Element root = (Element) nodeList.item(0);
+        Node nameNode = root.getElementsByTagName("name").item(0);
+        return "Project-GC".equalsIgnoreCase(nameNode.getTextContent());
+    }
 
     void dumpDebugData(LocalDateTime date, Element cache) {
         String monthsTextPlusComma = "," + monthsText + ",";
@@ -226,12 +246,17 @@ public class todoist implements Callable<Integer> {
 
                 if (finder.equalsIgnoreCase(cacher) && foundIt(logType)) {
                     dateText = log.getElementsByTagName("groundspeak:date").item(0).getTextContent().replace("Z", "");
-                    return LocalDateTime.parse(dateText);
+
+                    return isProjectGC ? LocalDateTime.parse(dateText) : convertGroundspeakDate(dateText);
                 }
             }
         }
 
         throw new IllegalStateException("Cannot find my log in cache " + cache.getElementsByTagName("groundspeak:name").item(0).getTextContent());
+    }
+
+    private LocalDateTime convertGroundspeakDate(String dateText) {
+        throw new IllegalStateException("convertGroundspeakDate: Not implemented yet");
     }
 
     boolean foundIt(String logType) {
