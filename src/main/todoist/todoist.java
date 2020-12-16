@@ -257,9 +257,7 @@ public class todoist implements Callable<Integer> {
 
     private LocalDateTime convertGroundspeakDate(String dateText) {
         ZonedDateTime pst = LocalDateTime.parse(dateText).atZone(ZoneId.of("America/Los_Angeles"));
-        int offsetSeconds = pst.getOffset().getTotalSeconds();
-        LocalDateTime dateTime = LocalDateTime.parse(dateText);
-        return pst.toLocalDateTime().plusSeconds(offsetSeconds);
+        return pst.toLocalDateTime().plusSeconds(pst.getOffset().getTotalSeconds());
     }
 
     boolean foundIt(String logType) {
