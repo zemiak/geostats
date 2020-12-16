@@ -1,0 +1,9 @@
+{
+  "aliases": {
+    "todoist": {
+      "script-ref": "todoist.java"
+    }
+  },
+  "base-ref": "src/main/todoist",
+  "description": "Generates Todoist entries from a found-it GPX file"
+}

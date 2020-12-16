@@ -5,8 +5,11 @@ import java.io.File;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.Month;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.TextStyle;
 import java.util.Locale;
+import java.util.concurrent.Callable;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -21,9 +24,6 @@ import org.xml.sax.SAXException;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Parameters;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
-
-import java.util.concurrent.Callable;
 
 @Command(name = "parse", mixinStandardHelpOptions = true, version = "parse 0.1",
         description = "Parses GPX of my-finds from Project-GC")
@@ -256,7 +256,10 @@ public class todoist implements Callable<Integer> {
     }
 
     private LocalDateTime convertGroundspeakDate(String dateText) {
-        throw new IllegalStateException("convertGroundspeakDate: Not implemented yet");
+        ZonedDateTime pst = LocalDateTime.parse(dateText).atZone(ZoneId.of("America/Los_Angeles"));
+        int offsetSeconds = pst.getOffset().getTotalSeconds();
+        LocalDateTime dateTime = LocalDateTime.parse(dateText);
+        return pst.toLocalDateTime().plusSeconds(offsetSeconds);
     }
 
     boolean foundIt(String logType) {
