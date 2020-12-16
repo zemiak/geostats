@@ -53,6 +53,7 @@ public class todoist implements Callable<Integer> {
     String daysText;
 
     boolean isProjectGC;
+    int priority = 3;
 
     public static void main(String... args) {
         int exitCode = new CommandLine(new todoist()).execute(args);
@@ -78,6 +79,10 @@ public class todoist implements Callable<Integer> {
         isProjectGC = isProjectGC(doc);
 
         NodeList nodeList = doc.getElementsByTagName("wpt");
+
+        if (yellows || regulars) {
+            priority = 4;
+        }
 
         for (int i = 0; i < nodeList.getLength(); i++) {
             Node node = nodeList.item(i);
@@ -156,34 +161,38 @@ public class todoist implements Callable<Integer> {
 
     void dumpDay(Month month, int ordinal, CachingDay day) {
         String text = "";
-        if (day.blue == 0) {
-            text += ", blue";
+
+        if (!yellows && !regulars) {
+            if (day.blue == 0) {
+                text += ", blue";
+            }
+
+            if (day.green == 0) {
+                text += ", green";
+            }
+            
+            if (day.micro == 0) {
+                text += ", micro";
+            }
+
+            if (day.small == 0) {
+                text += ", small";
+            }
+        } else {
+            if (yellows && day.yellow == 0) {
+                text += ", yellow";
+            }
+
+            if (regulars && day.regular == 0) {
+                text += ", regular";
+            }
         }
 
-        if (day.green == 0) {
-            text += ", green";
-        }
-
-        if (yellows && day.yellow == 0) {
-            text += ", yellow";
-        }
-
-        if (day.micro == 0) {
-            text += ", micro";
-        }
-
-        if (day.small == 0) {
-            text += ", small";
-        }
-
-        if (regulars && day.regular == 0) {
-            text += ", regular";
-        }
 
         if (!text.isBlank()) {
             text = text.substring(2);
 
-            System.out.println(month.getDisplayName(TextStyle.FULL, Locale.ENGLISH) + " " + (ordinal + 1) + " " + text + " #KeskyVelkost @kesky");
+            System.out.println(month.getDisplayName(TextStyle.FULL, Locale.ENGLISH) + " " + (ordinal + 1) + " " + text + " #KeskyVelkost @kesky p" + priority);
         }
     }
 
