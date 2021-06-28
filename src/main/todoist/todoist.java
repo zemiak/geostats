@@ -25,8 +25,8 @@ import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Parameters;
 
-@Command(name = "parse", mixinStandardHelpOptions = true, version = "parse 0.1",
-        description = "Parses GPX of my-finds from Project-GC")
+@Command(name = "todoist", mixinStandardHelpOptions = true, version = "todoist 1.0",
+        description = "Parses GPX of my-finds from Project-GC and creates Todoist tasks")
 public class todoist implements Callable<Integer> {
     String cacher = "zemiak";
     CachingYear data = new CachingYear();
@@ -170,7 +170,7 @@ public class todoist implements Callable<Integer> {
             if (day.green == 0) {
                 text += ", green";
             }
-            
+
             if (day.micro == 0) {
                 text += ", micro";
             }
